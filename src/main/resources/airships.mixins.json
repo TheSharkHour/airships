@@ -1,14 +1,16 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "%s.mixin",
+  "package": "com.shark.airships.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "ExampleMixin"
   ],
   "server": [
   ],
   "client": [
+    "MinecraftMixin",
+    "ModelPartAccessor",
+    "WorldRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

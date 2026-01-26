@@ -1,0 +1,10 @@
+item.airships.airship.name=Airship
+item.airships.balloon.name=Balloon
+item.airships.engine.name=Engine
+
+key.airships.up=Ascend airship
+key.airships.down=Descend airship
+key.airships.chest=Airship inventory
+key.airships.fire=Fire airship arrows
+
+tab.airships.airships_tab.name=Airships

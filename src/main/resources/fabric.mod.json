@@ -1,33 +1,51 @@
 {
   "schemaVersion": 1,
-  "id": "%s",
+  "id": "airships",
   "version": "${version}",
 
-  "name": "Example Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "Airships",
+  "description": "A port of the iconic airship by PChan3",
   "authors": [
-    "Me!"
+    "TheSharkHour"
+  ],
+  "contributors": [
+    "PChan3 (Original Mod)"
   ],
   "contact": {
-    "homepage": "https://glass-launcher.net/",
-    "sources": "https://github.com/calmilamsy/stationapi-example-mod"
+    "homepage": "https://github.com/TheSharkHour",
+    "sources": "https://github.com/TheSharkHour/airships"
   },
 
   "license": "CC0-1.0",
-  "icon": "assets/%s/icon.png",
+  "icon": "assets/airships/icon.png",
 
   "environment": "*",
   "entrypoints": {
+    "main": [
+      "com.shark.airships.Airships"
+    ],
     "stationapi:event_bus": [
-      "%s.events.init.InitListener"
+      "com.shark.airships.events.EntityListener",
+      "com.shark.airships.events.ItemListener",
+      "com.shark.airships.events.RecipeListener",
+      "com.shark.airships.events.ScreenHandlerListener",
+      "com.shark.airships.events.PacketListener"
     ],
     "stationapi:event_bus_client": [
+      "com.shark.airships.events.KeybindListener",
+      "com.shark.airships.events.EntityRendererListener"
     ],
     "stationapi:event_bus_server": [
+    ],
+    "bhcreative:event_bus": [
+      "com.shark.airships.events.addon.CreativeListener"
+    ],
+    "gcapi3": [
+      "com.shark.airships.Airships"
     ]
   },
   "mixins": [
-    "%s.mixins.json"
+    "airships.mixins.json"
   ],
 
   "depends": {
