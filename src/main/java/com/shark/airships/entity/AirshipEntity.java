@@ -3,12 +3,9 @@ package com.shark.airships.entity;
 import com.shark.airships.Airships;
 import com.shark.airships.events.EntityListener;
 import com.shark.airships.events.ItemListener;
-import net.danygames2014.elementalarrows.ElementalArrows;
-import net.danygames2014.elementalarrows.entity.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
-import net.kozibrodka.wolves.entity.BroadheadArrowEntity;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
@@ -753,100 +750,25 @@ public class AirshipEntity extends Entity implements Inventory, EntitySpawnDataP
             return;
         }
 
+        Runnable consumeArrow = () -> {
+            removeStack(12, 1);
+            world.playSound(player, "random.bow", 1F, 1F / (random.nextFloat() * 0.4F + 0.8F));
+        };
+
         if (ELEMENTAL_ARROWS) {
-            checkForElementalArrows(player);
+            try {
+                ArrowsIntegration.tryFireArrow(world, player, getStack(12), lx, ly, lz, playerLook, consumeArrow);
+            } catch (Exception ignored) {
+                Airships.LOGGER.error("Elemental Arrows integration failed to fire an arrow!");
+            }
         }
 
         if (WOLVES) {
-            checkForWolfArrows(player);
-        }
-    }
-
-    private void checkForWolfArrows(PlayerEntity player) {
-        ItemStack itemstack = getStack(12);
-        if (itemstack == null) return;
-
-        Vec3d playerLook = player.getLookVector();
-        double lx = x + (playerLook.x * 4D);
-        double ly = y + (height / 4);
-        double lz = z + (playerLook.z * 4D);
-
-        if (itemstack.getItem() == net.kozibrodka.wolves.events.ItemListener.broadHeadArrow) {
-            BroadheadArrowEntity broadheadArrow = new BroadheadArrowEntity(world, player);
-            broadheadArrow.setPosition(lx, ly, lz);
-            broadheadArrow.method_1291(playerLook.x, playerLook.y, playerLook.z, 2.6F, 6F); // Why?
-            removeStack(12, 1);
-            world.playSound(player, "random.bow", 1F, 1F / (random.nextFloat() * 0.4F + 0.8F));
-            world.spawnEntity(broadheadArrow);
-        }
-    }
-
-    private void checkForElementalArrows(PlayerEntity player) {
-        ItemStack itemStack = getStack(12);
-        if (itemStack == null) return;
-
-        Vec3d playerLook = player.getLookVector();
-        double lx = x + (playerLook.x * 4D);
-        double ly = y + (height / 4);
-        double lz = z + (playerLook.z * 4D);
-
-        if (itemStack.getItem() == ElementalArrows.eggArrow) {
-            EggArrowEntity eggArrow = new EggArrowEntity(world, player);
-            eggArrow.setPosition(lx, ly, lz);
-            eggArrow.setVelocity(playerLook.x, playerLook.y, playerLook.z, 2.6F, 6F);
-            removeStack(12, 1);
-            world.playSound(player, "random.bow", 1F, 1F / (random.nextFloat() * 0.4F + 0.8F));
-            world.spawnEntity(eggArrow);
-            return;
-        }
-
-        if (itemStack.getItem() == ElementalArrows.explosiveArrow) {
-            ExplosiveArrowEntity explosiveArrow = new ExplosiveArrowEntity(world, player);
-            explosiveArrow.setPosition(lx, ly, lz);
-            explosiveArrow.setVelocity(playerLook.x, playerLook.y, playerLook.z, 2.6F, 6F);
-            removeStack(12, 1);
-            world.playSound(player, "random.bow", 1F, 1F / (random.nextFloat() * 0.4F + 0.8F));
-            world.spawnEntity(explosiveArrow);
-            return;
-        }
-
-        if (itemStack.getItem() == ElementalArrows.fireArrow) {
-            FireArrowEntity fireArrow = new FireArrowEntity(world, player);
-            fireArrow.setPosition(lx, ly, lz);
-            fireArrow.setVelocity(playerLook.x, playerLook.y, playerLook.z, 2.6F, 6F);
-            removeStack(12, 1);
-            world.playSound(player, "random.bow", 1F, 1F / (random.nextFloat() * 0.4F + 0.8F));
-            world.spawnEntity(fireArrow);
-            return;
-        }
-
-        if (itemStack.getItem() == ElementalArrows.iceArrow) {
-            IceArrowEntity iceArrow = new IceArrowEntity(world, player);
-            iceArrow.setPosition(lx, ly, lz);
-            iceArrow.setVelocity(playerLook.x, playerLook.y, playerLook.z, 2.6F, 6F);
-            removeStack(12, 1);
-            world.playSound(player, "random.bow", 1F, 1F / (random.nextFloat() * 0.4F + 0.8F));
-            world.spawnEntity(iceArrow);
-            return;
-        }
-
-        if (itemStack.getItem() == ElementalArrows.lightingArrow) {
-            LightingArrowEntity lightingArrow = new LightingArrowEntity(world, player);
-            lightingArrow.setPosition(lx, ly, lz);
-            lightingArrow.setVelocity(playerLook.x, playerLook.y, playerLook.z, 2.6F, 6F);
-            removeStack(12, 1);
-            world.playSound(player, "random.bow", 1F, 1F / (random.nextFloat() * 0.4F + 0.8F));
-            world.spawnEntity(lightingArrow);
-            return;
-        }
-
-        if (itemStack.getItem() == ElementalArrows.torchArrow) {
-            TorchArrowEntity torchArrow = new TorchArrowEntity(world, player);
-            torchArrow.setPosition(lx, ly, lz);
-            torchArrow.setVelocity(playerLook.x, playerLook.y, playerLook.z, 2.6F, 6F);
-            removeStack(12, 1);
-            world.playSound(player, "random.bow", 1F, 1F / (random.nextFloat() * 0.4F + 0.8F));
-            world.spawnEntity(torchArrow);
+            try {
+                WolvesIntegration.tryFireArrow(world, player, getStack(12), lx, ly, lz, playerLook, consumeArrow);
+            } catch (Exception ignored) {
+                Airships.LOGGER.error("BTW integration failed to fire an arrow!");
+            }
         }
     }
 
