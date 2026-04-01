@@ -9,6 +9,7 @@ import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -38,24 +39,27 @@ public class AirshipEntityRenderer extends EntityRenderer {
      * @param pitch Pitch rotation (Might actually be partialTick?)
      */
     @Override
-    public void render(Entity entity, double x, double y, double z, float yaw, float pitch) {
+    public void render(@NotNull Entity entity, double x, double y, double z, float yaw, float pitch) {
         AirshipEntity airshipEntity = (AirshipEntity) entity;
 
         GL11.glPushMatrix();
         GL11.glTranslated(x, y, z);
         GL11.glRotated(180F - yaw, 0F, 1F, 0F);
-        float hurtTime = airshipEntity.hurtTime - pitch;
-        float damageScale = airshipEntity.damage - pitch;
+        float hurtTime = airshipEntity.getHurtTime() - pitch;
+        float damageScale = airshipEntity.getDamage() - pitch;
 
         if (damageScale < 0F) damageScale = 0;
-        if (damageScale > 0F) GL11.glRotatef(
-                ((MathHelper.sin(hurtTime) * hurtTime * damageScale) / 10F) * airshipEntity.hurtDir,
-                1F,
-                0F,
-                0F
-        );
+		if (hurtTime <= 0F) damageScale = 0;
+        if (damageScale > 0F) {
+			GL11.glRotatef(
+					((MathHelper.sin(hurtTime) * hurtTime * damageScale) / 30F) * airshipEntity.getHurtDir(),
+					0.1F,
+					0F,
+					0F
+			);
+		}
 
-        // Setup the initial texture and scale
+        // Set up the initial texture and scale
         bindTexture("/terrain.png");
         float scale = 0.75F;
         GL11.glScalef(scale, scale, scale);
@@ -72,7 +76,7 @@ public class AirshipEntityRenderer extends EntityRenderer {
         GL11.glScalef(4F, 4F, 4F);
         GL11.glTranslatef(0F, -0.85F, 0F);
 
-        // Render the balloon color based on the airship's color and render the balloon model
+        // Render the balloon color based on the entity's color, and then render the balloon model
         float brightness = airshipEntity.getBrightnessAtEyes(pitch);
         int balloonColor = airshipEntity.getBalloonColor();
         GL11.glColor3f(brightness * AirshipEntity.COLORS[balloonColor][0],

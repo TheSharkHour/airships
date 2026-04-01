@@ -4,6 +4,7 @@
   "package": "com.shark.airships.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "EntityMixin"
   ],
   "server": [
   ],

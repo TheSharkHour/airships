@@ -25,6 +25,7 @@ public class WolvesIntegration {
             world.spawnEntity(broadheadArrow);
             return true;
         }
+
         return false;
     }
 }

@@ -13,6 +13,7 @@ import net.minecraft.client.render.entity.model.EntityModel;
 @Environment(EnvType.CLIENT)
 public class AirshipEntityModel extends EntityModel {
     private float bladeSpin = 0.0F;
+
     public CustomModelPart[] boxes = new CustomModelPart[25];
 
     // TODO - Document what each 'box' is
@@ -149,27 +150,23 @@ public class AirshipEntityModel extends EntityModel {
         this.boxes[22].setPivot(6.0F, 3.0F, (float)(byte0 / 2) - 2.0F);
         this.boxes[22].pitch = (float)(Math.PI / 2F);
 
-        // Optional boiler (config-dependent)
-        if (Airships.MISC_CONFIG.showBoiler) {
-            this.boxes[23] = new CustomModelPart(0, 43);
-            this.boxes[23].addCuboid(-8.0F, -4.0F, 0.0F, 10, 8, 4, 0.0F);
-            this.boxes[23].setPivot(0.0F, 3.0F, 0.0F);
-            this.boxes[23].pitch = (float)(Math.PI / 2F);
+        // Boiler
+		this.boxes[23] = new CustomModelPart(0, 43);
+		this.boxes[23].addCuboid(-8.0F, -4.0F, 0.0F, 10, 8, 4, 0.0F);
+		this.boxes[23].setPivot(0.0F, 3.0F, 0.0F);
+		this.boxes[23].pitch = (float)(Math.PI / 2F);
 
-            this.boxes[24] = new CustomModelPart(28, 44);
-            this.boxes[24].addCuboid(-2.0F, -13.0F, -1.0F, 2, 14, 2, 0.0F);
-            this.boxes[24].setPivot(0.0F, 0.0F, 0.0F);
-        } else {
-            this.boxes[23] = new CustomModelPart(0, 0);
-            this.boxes[24] = new CustomModelPart(0, 0);
-            this.boxes[23].visible = false;
-            this.boxes[24].visible = false;
-        }
+		this.boxes[24] = new CustomModelPart(28, 44);
+		this.boxes[24].addCuboid(-2.0F, -13.0F, -1.0F, 2, 14, 2, 0.0F);
+		this.boxes[24].setPivot(0.0F, 0.0F, 0.0F);
     }
 
     @Override
     public void render(float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch, float scale) {
-        bladeSpin += animationProgress / 33F;
+		bladeSpin += 0.005F;
+
+		while (bladeSpin >= 180F) bladeSpin -= 360F;
+		while (bladeSpin < -180F) bladeSpin += 360F;
 
         // Animate propellers
         this.boxes[11].yaw = this.bladeSpin;
@@ -181,10 +178,13 @@ public class AirshipEntityModel extends EntityModel {
         this.boxes[17].yaw = -(float) (this.bladeSpin + (Math.PI / 2));
         this.boxes[18].yaw = -(float) (this.bladeSpin + Math.PI / 1.33F);
 
-        for (CustomModelPart box : boxes) {
-            if (box != null) {
-                box.render(scale);
-            }
-        }
+		for (int i = 0; i < 23; i++) {
+			boxes[i].render(scale);
+		}
+
+		if (Airships.MISC_CONFIG.showBoiler) {
+			boxes[23].render(scale);
+			boxes[24].render(scale);
+		}
     }
 }
