@@ -2,7 +2,7 @@ package com.shark.airships.events;
 
 import com.shark.airships.entity.AirshipEntity;
 import net.mine_diver.unsafeevents.listener.EventListener;
-import net.modificationstation.stationapi.api.event.entity.EntityRegister;
+import net.modificationstation.stationapi.api.event.entity.EntityRegisterEvent;
 import net.modificationstation.stationapi.api.event.registry.EntityHandlerRegistryEvent;
 import net.modificationstation.stationapi.api.mod.entrypoint.Entrypoint;
 import net.modificationstation.stationapi.api.util.Namespace;
@@ -14,8 +14,8 @@ public class EntityListener {
     public static Namespace NAMESPACE;
 
     @EventListener
-    public static void registerEntities(@NotNull EntityRegister event) {
-        event.register(AirshipEntity.class, NAMESPACE.id("Airship").toString());
+    public static void registerEntities(@NotNull EntityRegisterEvent event) {
+        event.register(NAMESPACE.id("Airship"), AirshipEntity.class);
     }
 
     @EventListener

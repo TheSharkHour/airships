@@ -6,8 +6,8 @@ import java.net.URL
 
 plugins {
 	id("maven-publish")
-	id("fabric-loom") version "1.13.3"
-	id("babric-loom-extension") version "1.13.3"
+	id("fabric-loom") version "1.16.2"
+	id("babric-loom-extension") version "1.15.3"
 }
 
 //noinspection GroovyUnusedAssignment
@@ -85,8 +85,8 @@ dependencies {
 	// https://github.com/Glass-Series/Always-More-Items
 	modImplementation("net.glasslauncher.mods:AlwaysMoreItems:${project.properties["alwaysmoreitems_version"]}")
 
-    modImplementation(files("libs/elementalarrows-1.1.0.jar"))
-    modImplementation(files("libs/fabric-betterthanwolves-1.5.0.jar"))
+    modImplementation(files("libs/elementalarrows-1.2.0.jar"))
+    modImplementation(files("libs/fabric-betterthanwolves-2.0.4.jar"))
     modImplementation("maven.modrinth:bh-creative:${project.properties["bhcreative_version"]}")
 
     modRuntimeOnly ("maven.modrinth:fast-stapi-intro:2.0.0")

@@ -2,6 +2,8 @@ item.airships.airship.name=Airship
 item.airships.balloon.name=Balloon
 item.airships.engine.name=Engine
 
+entity.airships.Airship.name=Airship
+
 key.airships.up=Ascend airship
 key.airships.down=Descend airship
 key.airships.chest=Airship inventory
