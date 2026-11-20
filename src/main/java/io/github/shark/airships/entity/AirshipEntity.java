@@ -61,6 +61,10 @@ public class AirshipEntity extends Entity implements Inventory, EntitySpawnDataP
     public int litDuration = 0;
     public boolean boost = false;
 
+    // Horizontal speed limits in blocks. (per tick)
+    private static final double MAX_SPEED = 0.4D;
+    private static final double BOOST_MAX_SPEED = 0.6D;
+
     // Arrow counter and whether they've been fired
     private int arrowCounter;
     boolean hasFired;
@@ -308,30 +312,32 @@ public class AirshipEntity extends Entity implements Inventory, EntitySpawnDataP
 
     @Override
     public void markDead() {
-        for (int i = 0; i < size(); i++) {
-            ItemStack is = getStack(i);
-            if (is != null) {
-                float rx = random.nextFloat() * 0.8F + 0.1F;
-                float ry = random.nextFloat() * 0.8F + 0.1F;
-                float rz = random.nextFloat() * 0.8F + 0.1F;
+        if (!world.isRemote) {
+            for (int i = 0; i < size(); i++) {
+                ItemStack is = getStack(i);
+                if (is != null) {
+                    float rx = random.nextFloat() * 0.8F + 0.1F;
+                    float ry = random.nextFloat() * 0.8F + 0.1F;
+                    float rz = random.nextFloat() * 0.8F + 0.1F;
 
-                while (is.count > 0) {
-                    int randSplit = random.nextInt(21) + 10;
-                    if (randSplit > is.count) randSplit = is.count;
+                    while (is.count > 0) {
+                        int randSplit = random.nextInt(21) + 10;
+                        if (randSplit > is.count) randSplit = is.count;
 
-                    is.count -= randSplit;
-                    ItemEntity item = new ItemEntity(world,
-                            x + rx,
-                            y + ry,
-                            z + rz,
-                            new ItemStack(is.itemId, randSplit, is.getDamage()));
+                        is.count -= randSplit;
+                        ItemEntity item = new ItemEntity(world,
+                                x + rx,
+                                y + ry,
+                                z + rz,
+                                new ItemStack(is.itemId, randSplit, is.getDamage()));
 
-                    float m = 0.05F;
-                    item.velocityX = random.nextGaussian() * m;
-                    item.velocityY = random.nextGaussian() * m + 0.2F;
-                    item.velocityZ = random.nextGaussian() * m;
+                        float m = 0.05F;
+                        item.velocityX = random.nextGaussian() * m;
+                        item.velocityY = random.nextGaussian() * m + 0.2F;
+                        item.velocityZ = random.nextGaussian() * m;
 
-                    world.spawnEntity(item);
+                        world.spawnEntity(item);
+                    }
                 }
             }
         }
@@ -541,8 +547,8 @@ public class AirshipEntity extends Entity implements Inventory, EntitySpawnDataP
 
                 double yrd = clientPitch - yaw;
 
-                while (yrd < 180F) yrd += 360F;
-                while (yrd > 180.0F) yrd -= 360.0F;
+                while (yrd < -180) yrd += 360;
+                while (yrd > 180) yrd -= 360;
 
                 yaw += (float) (yrd / clientInterpolationSteps);
                 pitch += (float) ((clientYaw - pitch) / clientInterpolationSteps);
@@ -590,15 +596,21 @@ public class AirshipEntity extends Entity implements Inventory, EntitySpawnDataP
             velocityX += passenger.velocityX * 0.2;
             velocityZ += passenger.velocityZ * 0.2;
 
-            if (clientPressingUp) velocityY -= passenger.velocityY * 0.04D;
-            if (clientPressingDown) velocityY += passenger.velocityY * 0.04D;
+            if (clientPressingUp) velocityY += 0.003;
+            if (clientPressingDown) velocityY -= 0.003;
         }
         
-        if (velocityX < -0.4D) velocityX = -0.4D;
-        if (velocityX > 0.4D) velocityX = 0.4D;
+        // Limit horizontal speed as one vector, so the direction is kept.
+        double horizontalSpeed = Math.sqrt(velocityX * velocityX + velocityZ * velocityZ);
+        double maxSpeed = boost ? BOOST_MAX_SPEED : MAX_SPEED;
 
-        if (velocityZ < -0.4D) velocityZ = -0.4D;
-        if (velocityZ > 0.4D) velocityZ = 0.4D;
+        // Boosting pushes the airship to full speed in its current direction.
+        boolean boosting = boost && horizontalSpeed > 0.01D;
+        if (boosting || horizontalSpeed > maxSpeed) {
+            double scale = maxSpeed / horizontalSpeed;
+            velocityX *= scale;
+            velocityZ *= scale;
+        }
 
         if (onGround) {
             velocityX *= 0.5F;
@@ -609,8 +621,7 @@ public class AirshipEntity extends Entity implements Inventory, EntitySpawnDataP
         move(velocityX, velocityY, velocityZ);
 
         if (horizontalCollision && lastSpeed > 0.20) {
-            if (!world.isRemote && !dead) 
-                setDamage(getDamage() + 10);
+            if (!world.isRemote && !dead) setDamage(getDamage() + 10);
         } else {
             velocityX *= 0.99F;
             velocityY *= 0.95F;
@@ -633,22 +644,22 @@ public class AirshipEntity extends Entity implements Inventory, EntitySpawnDataP
         yaw += (float) rotDiff;
         this.setRotation(this.yaw, this.pitch);
 
-        // Server-side stuff past this point!
+        // ! Server-side stuff past this point !
         // This handles collision, setting the passenger is null, firing arrows, and updating the fuel.
         if (world.isRemote) return;
 
-        List<Entity> var16 = world.getEntities(this, boundingBox.expand(0.2F, 0.0F, 0.2F));
-        if (var16 != null && !var16.isEmpty()) {
-            for (Entity entity : var16) {
+        List<Entity> entities = world.getEntities(this, boundingBox.expand(0.2F, 0.0F, 0.2F));
+        if (entities != null && !entities.isEmpty()) {
+            for (Entity entity : entities) {
                 if (entity != passenger && entity.isPushable() && entity instanceof AirshipEntity) {
                     entity.onCollision(this);
                 }
             }
         }
 
-        if (this.passenger != null && this.passenger.dead) {
-            this.passenger = null;
-        }
+        // Check if the passenger is dead, as well as reset the controls if they are.
+        if (passenger != null && passenger.dead) passenger = null;
+        if (passenger == null) resetControls();
 
 
         // Fuel lighting
@@ -672,17 +683,28 @@ public class AirshipEntity extends Entity implements Inventory, EntitySpawnDataP
 
         if (items[13] != null && items[13].count <= 0) items[13] = null;
 
-
         // Arrow firing //
         hasFired = arrowCounter != 20;
         if (arrowCounter < 20)
             arrowCounter++;
 
-        if (clientPressingFire && passenger != null && !hasFired) {
+        if (passenger instanceof PlayerEntity) {
             PlayerEntity player = (PlayerEntity) passenger;
-            fireProjectile(player);
-            arrowCounter = 0;
+
+            if (clientPressingFire && !hasFired) {
+                fireProjectile(player);
+                arrowCounter = 0;
+            }
         }
+    }
+
+    /**
+     * Clears the controls, for when key releases can't be reached.
+     */
+    public void resetControls() {
+        clientPressingUp = false;
+        clientPressingDown = false;
+        clientPressingFire = false;
     }
 
     private void fireProjectile(PlayerEntity player) {

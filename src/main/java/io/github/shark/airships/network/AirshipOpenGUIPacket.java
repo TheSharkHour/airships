@@ -14,8 +14,6 @@ import net.modificationstation.stationapi.api.network.packet.PacketType;
 import net.modificationstation.stationapi.api.util.Identifier;
 import net.modificationstation.stationapi.api.util.Namespace;
 import net.modificationstation.stationapi.api.util.SideUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.DataInputStream;
@@ -29,7 +27,6 @@ import java.io.DataOutputStream;
  */
 public class AirshipOpenGUIPacket extends Packet implements ManagedPacket<AirshipOpenGUIPacket> {
     public static final PacketType<AirshipOpenGUIPacket> TYPE = PacketType.builder(false, true, AirshipOpenGUIPacket::new).build();
-    private static final Logger log = LogManager.getLogger("[AIRSHIPS]");
 
     public AirshipOpenGUIPacket() {
     }
@@ -53,7 +50,9 @@ public class AirshipOpenGUIPacket extends Packet implements ManagedPacket<Airshi
     private void handleClient(NetworkHandler networkHandler) {
         PlayerEntity player = PlayerHelper.getPlayerFromPacketHandler(networkHandler);
         if (player == null || !(player.vehicle instanceof AirshipEntity)) return;
+
         AirshipEntity airship = (AirshipEntity) player.vehicle;
+        airship.resetControls();
 
         GuiHelper.openGUI(
                 player,
@@ -67,7 +66,9 @@ public class AirshipOpenGUIPacket extends Packet implements ManagedPacket<Airshi
     public void handleServer(NetworkHandler networkHandler) {
         PlayerEntity player = PlayerHelper.getPlayerFromPacketHandler(networkHandler);
         if (player == null || !(player.vehicle instanceof AirshipEntity)) return;
+
         AirshipEntity airship = (AirshipEntity) player.vehicle;
+        airship.resetControls();
 
         GuiHelper.openGUI(
                 player,

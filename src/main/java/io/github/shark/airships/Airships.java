@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Airships implements ModInitializer {
-    public static final Logger LOGGER = LoggerFactory.getLogger("Airships");
+    public static final Logger LOGGER = LoggerFactory.getLogger("[AIRSHIPS]");
 
     @ConfigRoot(value = "miscellaneous", visibleName = "Miscellaneous Options", index = 0)
     public static final AirshipsConfig.MiscellaneousConfig MISC_CONFIG = new AirshipsConfig.MiscellaneousConfig();

@@ -32,22 +32,26 @@ public abstract class MinecraftMixin {
     @Shadow
     public Screen currentScreen;
 
-    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lorg/lwjgl/input/Keyboard;next()Z"))
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/ClientPlayerEntity;updateKey(IZ)V"))
     private void airships_tick(CallbackInfo ci) {
         if (player == null || player.dead || !(player.vehicle instanceof AirshipEntity)) return;
+        if (currentScreen != null) return;
 
-        if (Keyboard.getEventKeyState() && currentScreen == null) {
-            if (Keyboard.getEventKey() == KeybindListener.KEY_CHEST.code) {
-                AirshipOpenGUIPacket openGUI = new AirshipOpenGUIPacket();
-                PacketHelper.send(openGUI);
-            }
+        int key = Keyboard.getEventKey();
 
+        // Open the UI when the code is pressed.
+        if (key == KeybindListener.KEY_CHEST.code) {
+            if (Keyboard.getEventKeyState()) PacketHelper.send(new AirshipOpenGUIPacket());
+            return;
+        }
+
+        // Send a packet if any of the three 'movement' keys are pressed.
+        if (key == KeybindListener.KEY_UP.code || key == KeybindListener.KEY_DOWN.code || key == KeybindListener.KEY_FIRE.code) {
             boolean up = Keyboard.isKeyDown(KeybindListener.KEY_UP.code);
             boolean down = Keyboard.isKeyDown(KeybindListener.KEY_DOWN.code);
             boolean fire = Keyboard.isKeyDown(KeybindListener.KEY_FIRE.code);
 
-            AirshipControlsPacketC2S controlsPacket = new AirshipControlsPacketC2S(up, down, fire);
-            PacketHelper.send(controlsPacket);
+            PacketHelper.send(new AirshipControlsPacketC2S(up, down, fire));
         }
     }
 }

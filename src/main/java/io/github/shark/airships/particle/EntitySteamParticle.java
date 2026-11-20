@@ -18,9 +18,9 @@ public class EntitySteamParticle extends Particle {
         this.velocityY = velocityY + (Math.random() * 2D - 1D) * 0.05F;
         this.velocityZ = velocityZ + (Math.random() * 2D - 1D) * 0.05F;
 
-        red = 230F;
-        green = 230F;
-        blue = 230F;
+        red = 1F;
+        green = 1F;
+        blue = 1F;
 
         scale = random.nextFloat() * random.nextFloat() * 6.0F + 1.0F;
         maxParticleAge = (int)(16D / (random.nextFloat() * 0.8D + 0.2D)) + 2;
