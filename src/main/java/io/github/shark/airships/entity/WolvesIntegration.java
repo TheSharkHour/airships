@@ -3,6 +3,7 @@ package io.github.shark.airships.entity;
 import net.kozibrodka.wolves.entity.BroadheadArrowEntity;
 import net.kozibrodka.wolves.events.ItemListener;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -14,6 +15,13 @@ import org.jetbrains.annotations.NotNull;
  * <p>Better Than Wolves integration for firing arrows.</p>
  */
 public class WolvesIntegration {
+    /**
+     * @return whether this is one of the Better Than Wolves arrows the airship can fire.
+     */
+    public static boolean isArrow(Item item) {
+        return item == ItemListener.broadHeadArrow;
+    }
+
     public static boolean tryFireArrow(World world, PlayerEntity player, @NotNull ItemStack itemStack,
                                        double lx, double ly, double lz, Vec3d playerLook,
                                        Runnable consumeArrow) {

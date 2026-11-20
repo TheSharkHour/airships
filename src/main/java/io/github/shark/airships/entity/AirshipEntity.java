@@ -104,7 +104,7 @@ public class AirshipEntity extends Entity implements Inventory, EntitySpawnDataP
         super(world);
 
         clientInterpolationSteps = 0;
-        clientX = clientY = clientZ = clientYaw = 0;
+        clientX = clientY = clientZ = clientYaw = clientPitch = 0;
         clientVelocityX = clientVelocityY = clientVelocityZ = 0;
 
         arrowCounter = 0;
@@ -301,7 +301,10 @@ public class AirshipEntity extends Entity implements Inventory, EntitySpawnDataP
         return this.litTime * i / litDuration;
     }
 
-    private int getLitTime(ItemStack itemStack) {
+    /**
+     * @return how many ticks this item burns for in the airship's engine, or 0 if it isn't fuel.
+     */
+    public static int getLitTime(ItemStack itemStack) {
         if (itemStack == null) return 0;
 
         Item item = itemStack.getItem();
@@ -475,13 +478,13 @@ public class AirshipEntity extends Entity implements Inventory, EntitySpawnDataP
 
     @Environment(EnvType.CLIENT)
     @Override
-    public void setPositionAndAnglesAvoidEntities(double x, double y, double z, float pitch, float yaw, int interpolationSteps) {
+    public void setPositionAndAnglesAvoidEntities(double x, double y, double z, float yaw, float pitch, int interpolationSteps) {
         clientX = x;
         clientY = y;
         clientZ = z;
 
-        clientPitch = pitch;
         clientYaw = yaw;
+        clientPitch = pitch;
         clientInterpolationSteps = interpolationSteps + 4;
 
         velocityX = clientVelocityX;
@@ -533,7 +536,7 @@ public class AirshipEntity extends Entity implements Inventory, EntitySpawnDataP
         }
 
         // Show steam particles when/if possible.
-        if (Airships.MISC_CONFIG.showBoiler) {
+        if (Airships.MISC_CONFIG.showBoiler && litDuration > 0) {
             double side = random.nextFloat() * 2F - 1F;
             if (side > 0.65D)
                 world.addParticle("AirshipsSteam", x, y + 0.9D - side, z, 0D, 0D, 0D);
@@ -545,13 +548,13 @@ public class AirshipEntity extends Entity implements Inventory, EntitySpawnDataP
                 double yt = y + (clientY - y) / clientInterpolationSteps;
                 double zt = z + (clientZ - z) / clientInterpolationSteps;
 
-                double yrd = clientPitch - yaw;
+                double yrd = clientYaw - yaw;
 
                 while (yrd < -180) yrd += 360;
                 while (yrd > 180) yrd -= 360;
 
                 yaw += (float) (yrd / clientInterpolationSteps);
-                pitch += (float) ((clientYaw - pitch) / clientInterpolationSteps);
+                pitch += (float) ((clientPitch - pitch) / clientInterpolationSteps);
 
                 clientInterpolationSteps--;
 
@@ -705,6 +708,18 @@ public class AirshipEntity extends Entity implements Inventory, EntitySpawnDataP
         clientPressingUp = false;
         clientPressingDown = false;
         clientPressingFire = false;
+    }
+
+    /**
+     * @return whether this is a projectile the airship can fire, including ones from some supported mods.
+     */
+    public static boolean isAmmo(ItemStack itemStack) {
+        if (itemStack == null) return false;
+        Item item = itemStack.getItem();
+        if (item == Item.ARROW || item == Item.SNOWBALL || item == Item.EGG) return true;
+
+        if (ELEMENTAL_ARROWS && ArrowsIntegration.isArrow(item)) return true;
+        return WOLVES && WolvesIntegration.isArrow(item);
     }
 
     private void fireProjectile(PlayerEntity player) {

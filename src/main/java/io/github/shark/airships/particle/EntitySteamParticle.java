@@ -31,7 +31,7 @@ public class EntitySteamParticle extends Particle {
         this.prevX = this.x;
         this.prevY = this.y;
         this.prevZ = this.z;
-        if (this.age++ >= this.maxParticleAge) this.markDead();
+        if (this.particleAge++ >= this.maxParticleAge) this.markDead();
 
         textureId = 7 - particleAge * 8 / maxParticleAge;
         velocityY += 0.008D;

@@ -77,23 +77,43 @@ public class AirshipScreenHandler extends ScreenHandler {
         if (id == 1) airship.litDuration = value;
     }
 
+    private static final int FUEL_SLOT = 0;
+    private static final int AMMO_SLOT = 1;
+    private static final int STORAGE_START = 2;
+    private static final int PLAYER_START = 14;
+    private static final int HOTBAR_START = 41;
+    private static final int PLAYER_END = 50;
+
     @Override
     public ItemStack quickMove(int slot) {
         ItemStack item = null;
-        Slot iSlot = (Slot)this.slots.get(slot);
+        Slot iSlot = (Slot) this.slots.get(slot);
 
-        if(iSlot != null && iSlot.hasStack()) {
+        if (iSlot != null && iSlot.hasStack()) {
             ItemStack itemIS = iSlot.getStack();
             item = itemIS.copy();
 
-            if(slot >= 9 && slot < 36) this.insertItem(itemIS, 36, 45, false);
-            else if(slot >= 36 && slot < 45) this.insertItem(itemIS, 9, 36, false);
-            else this.insertItem(itemIS, 9, 45, false);
+            if (slot < PLAYER_START) {
+                // Airship -> player
+                this.insertItem(itemIS, PLAYER_START, PLAYER_END, true);
+            } else {
+                // Player -> airship: Fuel and Ammo go to their own slots first, everything else into storage.
+                if (AirshipEntity.getLitTime(itemIS) > 0 && !AirshipEntity.isAmmo(itemIS)) this.insertItem(itemIS, FUEL_SLOT, FUEL_SLOT + 1, false);
+                else if (AirshipEntity.isAmmo(itemIS)) this.insertItem(itemIS, AMMO_SLOT, AMMO_SLOT + 1, false);
 
-            if(itemIS.count == 0) iSlot.setStack(null);
+                if (itemIS.count > 0) this.insertItem(itemIS, STORAGE_START, PLAYER_START, false);
+
+                // Airship is full -> Fall back to moving between the inventory and hotbar.
+                if (itemIS.count > 0) {
+                    if (slot < HOTBAR_START) this.insertItem(itemIS, HOTBAR_START, PLAYER_END, false);
+                    else this.insertItem(itemIS, PLAYER_START, HOTBAR_START, false);
+                }
+            }
+
+            if (itemIS.count == 0) iSlot.setStack(null);
             else iSlot.markDirty();
 
-            if(itemIS.count == item.count) return null;
+            if (itemIS.count == item.count) return null;
             iSlot.onTakeItem(itemIS);
         }
 
