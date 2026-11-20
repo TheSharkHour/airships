@@ -6,8 +6,8 @@ import java.net.URL
 
 plugins {
 	id("maven-publish")
-	id("fabric-loom") version "1.16.2"
-	id("babric-loom-extension") version "1.15.3"
+	id("fabric-loom") version "1.17.20"
+	id("babric-loom-extension") version "1.17.5"
 }
 
 //noinspection GroovyUnusedAssignment
@@ -19,8 +19,6 @@ version = project.properties["mod_version"] as String
 group = project.properties["maven_group"] as String
 
 loom {
-//	accessWidenerPath = file("src/main/resources/examplemod.accesswidener")
-
 	runs {
 		// If you want to make a testmod for your mod, right click on src, and create a new folder with the same name as source() below.
 		// Intellij should give suggestions for testmod folders.
@@ -85,8 +83,11 @@ dependencies {
 	// https://github.com/Glass-Series/Always-More-Items
 	modImplementation("net.glasslauncher.mods:AlwaysMoreItems:${project.properties["alwaysmoreitems_version"]}")
 
-    modImplementation(files("libs/elementalarrows-1.2.0.jar"))
-    modImplementation(files("libs/fabric-betterthanwolves-2.0.4.jar"))
+	// https://github.com/DanyGames2014/ElementalArrows
+	modImplementation("net.danygames2014:elementalarrows:${project.properties["elementalarrows_version"]}")
+
+	// https://modrinth.com/mod/better-than-wolves-legacy-unofficial
+	modImplementation("maven.modrinth:better-than-wolves-legacy-unofficial:${project.properties["btw_version"]}")
     modImplementation("maven.modrinth:bh-creative:${project.properties["bhcreative_version"]}")
 
     modRuntimeOnly ("maven.modrinth:fast-stapi-intro:2.0.0")
@@ -122,6 +123,12 @@ tasks.withType<Jar> {
 	from("LICENSE") {
 		rename { "${it}_${project.properties["archivesBaseName"]}" }
 	}
+}
+
+// Tells gradle to not generate module files for maven.
+// They aren't standard and the documentation is abysmal. Stop it.
+tasks.withType<GenerateModuleMetadata> {
+	enabled = false
 }
 
 publishing {

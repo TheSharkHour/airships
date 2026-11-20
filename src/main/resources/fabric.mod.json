@@ -22,26 +22,26 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.shark.airships.Airships"
+      "io.github.shark.airships.Airships"
     ],
     "stationapi:event_bus": [
-      "com.shark.airships.events.EntityListener",
-      "com.shark.airships.events.ItemListener",
-      "com.shark.airships.events.RecipeListener",
-      "com.shark.airships.events.ScreenHandlerListener",
-      "com.shark.airships.events.PacketListener"
+      "io.github.shark.airships.events.EntityListener",
+      "io.github.shark.airships.events.ItemListener",
+      "io.github.shark.airships.events.RecipeListener",
+      "io.github.shark.airships.events.ScreenHandlerListener",
+      "io.github.shark.airships.events.PacketListener"
     ],
     "stationapi:event_bus_client": [
-      "com.shark.airships.events.KeybindListener",
-      "com.shark.airships.events.EntityRendererListener"
+      "io.github.shark.airships.events.KeybindListener",
+      "io.github.shark.airships.events.EntityRendererListener"
     ],
     "stationapi:event_bus_server": [
     ],
     "bhcreative:event_bus": [
-      "com.shark.airships.events.addon.CreativeListener"
+      "io.github.shark.airships.events.addon.CreativeListener"
     ],
     "gcapi3": [
-      "com.shark.airships.Airships"
+      "io.github.shark.airships.Airships"
     ]
   },
   "mixins": [
@@ -50,6 +50,6 @@
 
   "depends": {
     "minecraft": "1.0.0-beta.7.3",
-    "stationapi": [">=2.0-alpha.6.2"]
+    "stationapi": [">=2.0-alpha.6.4"]
   }
 }

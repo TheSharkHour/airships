@@ -1,0 +1,25 @@
+package io.github.shark.airships.events;
+
+import io.github.shark.airships.entity.AirshipEntity;
+import net.mine_diver.unsafeevents.listener.EventListener;
+import net.modificationstation.stationapi.api.event.entity.EntityRegisterEvent;
+import net.modificationstation.stationapi.api.event.registry.EntityHandlerRegistryEvent;
+import net.modificationstation.stationapi.api.mod.entrypoint.Entrypoint;
+import net.modificationstation.stationapi.api.util.Namespace;
+import org.jetbrains.annotations.NotNull;
+
+@SuppressWarnings("unused")
+public class EntityListener {
+    @Entrypoint.Namespace
+    public static Namespace NAMESPACE;
+
+    @EventListener
+    public static void registerEntities(@NotNull EntityRegisterEvent event) {
+        event.register(NAMESPACE.id("Airship"), AirshipEntity.class);
+    }
+
+    @EventListener
+    public static void registerMobHandlers(@NotNull EntityHandlerRegistryEvent event) {
+        event.register(NAMESPACE.id("Airship"), AirshipEntity::new);
+    }
+}

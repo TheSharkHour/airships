@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.shark.airships.mixin",
+  "package": "io.github.shark.airships.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "EntityMixin"
